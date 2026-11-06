@@ -1,0 +1,21 @@
+// สมมติว่า InfluxDB คืนค่าข้อมูลมาเป็น JSON Array หรือ Arrow Flight
+let rawData = msg.payload; 
+
+// แปลงให้อยู่ในรูป Array ที่ Chart Node เข้าใจ [{ x: timestamp, y: value }]
+let seriesData = [];
+
+rawData.forEach(row => {
+    seriesData.push({
+        x: new Date(row.time).valueOf(), // แปลง ISO String เป็น Timestamp (ms)
+        y: row.value                      // ค่าที่ต้องการพล็อตบนแกน Y
+    });
+});
+
+// ส่งเข้า Line Chart ในรูปแบบ Payload เดียว
+msg.payload = [{
+    "series": ["Temperature"],
+    "data": [seriesData],
+    "labels": ["Temperature"]
+}];
+
+return msg;
